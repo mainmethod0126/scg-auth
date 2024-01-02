@@ -9,13 +9,13 @@ import org.springframework.beans.factory.annotation.Value;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 
-public class JwtTokenProvider {
+public class JwtProvider {
 
     // 토큰 유효시간 30분
     @Value("${custom.token.access.expired-time:#{1800000}}")
     private long tokenValidTime;
 
-    private SecretKey secretKey = Jwts.SIG.HS256.key().build();
+    private static final SecretKey secretKey = Jwts.SIG.HS256.key().build();
 
     private String createTokenId() {
         return Integer.toString(new Date().hashCode());
@@ -34,7 +34,9 @@ public class JwtTokenProvider {
 
     }
 
-    // Access 토큰 연장을 위한 refresh 토큰 생성
+    /**
+     * Access 토큰 연장을 위한 refresh 토큰 생성
+     */
     public String createRefreshToken() {
 
         Date now = new Date();

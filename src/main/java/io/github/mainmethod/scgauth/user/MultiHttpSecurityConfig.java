@@ -33,7 +33,7 @@ public class MultiHttpSecurityConfig {
         http.csrf(config -> {
             config.disable();
         }).authorizeHttpRequests((requests) -> requests
-                .requestMatchers("/", "/signup", "/signin", "/home").permitAll()
+                .requestMatchers("/", "/signup", "/home").permitAll()
                 .anyRequest().authenticated())
                 .addFilterBefore(
                         new JsonUsernamePasswordAuthenticationFilter(
