@@ -9,10 +9,14 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 public class JsonUsernamePasswordAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
+
+    private JwtLoginSuccessHandler jwtLoginSuccessHandler = new JwtLoginSuccessHandler();
 
     public JsonUsernamePasswordAuthenticationFilter(AuthenticationManager authenticationManager) {
         super.setAuthenticationManager(authenticationManager);
@@ -37,4 +41,11 @@ public class JsonUsernamePasswordAuthenticationFilter extends UsernamePasswordAu
         return this.getAuthenticationManager().authenticate(usernamePasswordAuthenticationToken);
 
     }
+
+    @Override
+    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
+            Authentication authResult) throws IOException, ServletException {
+        this.jwtLoginSuccessHandler.onAuthenticationSuccess(request, response, authResult);
+    }
+
 }
