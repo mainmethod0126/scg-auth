@@ -12,7 +12,11 @@ import jakarta.servlet.http.HttpServletResponse;
 
 public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
 
-    private JwtTokenProvider jwtTokenProvider = new JwtTokenProvider();
+    private JwtProvider jwtProvider;
+
+    public JwtLoginSuccessHandler(JwtProvider jwtProvider) {
+        this.jwtProvider = jwtProvider;
+    }
 
     /**
      * 인증이 성공하였으니 Jwt를 발급합니다.
@@ -25,8 +29,8 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
 
         if (principal instanceof User) {
             User loginUser = (User) principal;
-            String accessToken = this.jwtTokenProvider.createAccessToken(loginUser.getUserId());
-            String refreshToken = this.jwtTokenProvider.createRefreshToken();
+            String accessToken = this.jwtProvider.createAccessToken(loginUser.getUserId());
+            String refreshToken = this.jwtProvider.createRefreshToken();
 
             response.addHeader("Authorization", "Bearer " + accessToken);
             response.getWriter().write(refreshToken);

@@ -2,7 +2,7 @@ package io.github.mainmethod.scgauth.auth;
 
 import java.io.IOException;
 
-import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import jakarta.servlet.FilterChain;
@@ -12,24 +12,32 @@ import jakarta.servlet.http.HttpServletResponse;
 
 public class TokenVerificationFilter extends OncePerRequestFilter {
 
-    // 인증이 필요한 url 의 경우
-    // 토큰이 존재하는지 확인 후 토큰이 없을 경우 튕깁니다.
+    private JwtProvider jwtProvider;
 
-    private JwtProvider jwtProvider = new JwtProvider();
+    public TokenVerificationFilter(JwtProvider jwtProvider) {
+        this.jwtProvider = jwtProvider;
+    }
 
+    /**
+     * 토큰의 유효성을 확인합니다,
+     * 
+     */
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        String token = request.getHeader("Authorization");
+        String authorizationHeaderValue = request.getHeader("Authorization");
 
-        if (!token.startsWith("Bearer ")) {
-            throw new BadCredentialsException(
-                    "The value of the Authorization header should start with the word 'Bearer.' Please check and retry your request.");
+        if (authorizationHeaderValue != null && authorizationHeaderValue.startsWith("Bearer ")) {
+            String token = authorizationHeaderValue.replace("Bearer ", "");
+
+            if (jwtProvider.validateToken(token)) {
+                var authentication = jwtProvider.getAuthentication(token);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
         }
 
-        String jwt = token.replace("Bearer ", "");
-
+        filterChain.doFilter(request, response);
     }
 
 }

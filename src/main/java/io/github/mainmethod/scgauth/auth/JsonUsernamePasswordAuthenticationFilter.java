@@ -16,9 +16,11 @@ import jakarta.servlet.http.HttpServletResponse;
 
 public class JsonUsernamePasswordAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
-    private JwtLoginSuccessHandler jwtLoginSuccessHandler = new JwtLoginSuccessHandler();
+    private JwtLoginSuccessHandler jwtLoginSuccessHandler;
 
-    public JsonUsernamePasswordAuthenticationFilter(AuthenticationManager authenticationManager) {
+    public JsonUsernamePasswordAuthenticationFilter(AuthenticationManager authenticationManager,
+            JwtProvider jwtProvider) {
+        this.jwtLoginSuccessHandler = new JwtLoginSuccessHandler(jwtProvider);
         super.setAuthenticationManager(authenticationManager);
     }
 
